@@ -13,6 +13,11 @@ server.use(json());
 
 const mongoClient = new MongoClient(process.env.MONGO_URI);
 
+const nameSchema = joi.object({
+    name: joi.string().required()
+});
+
+
 server.get('/participants', async (req, res)=>{
     
     try {
@@ -28,6 +33,34 @@ server.get('/participants', async (req, res)=>{
 		mongoClient.close()
 	 }
 })
+
+server.post('/participants', async (req, res)=>{
+    
+    const {name} = req.body;
+
+    const validation = nameSchema.validate({name}, { abortEarly: false });
+
+    if (validation.error) {
+      console.log(validation.error.details);
+      const messages = validation.error.details.map(item => item.message);
+      res.status(422).send(messages);
+    }
+
+    try {
+		await mongoClient.connect();
+		const db = mongoClient.db("bate-papo-UOL")
+		const participantsColection = db.collection("participants");
+		const participantsList = await participantsColection.find().toArray();
+				
+		res.status(200);
+		mongoClient.close()
+	 } catch (error) {
+	    res.status(500).send(error)
+		mongoClient.close()
+	 }
+})
+
+
 
 server.listen(5000, ()=>{
     console.log('O servidor está rodando na porta 5000')
