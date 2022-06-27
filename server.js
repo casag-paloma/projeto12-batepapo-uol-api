@@ -5,11 +5,11 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 import joi from 'joi';
+import dayjs from 'dayjs';
 
 const server = express();
 server.use(cors());
 server.use(json());
-
 
 const mongoClient = new MongoClient(process.env.MONGO_URI);
 let db;
@@ -54,9 +54,16 @@ server.post('/participants', async (req, res)=>{
             name,
             lastStatus: Date.now()
         })
-        
-				
-		res.status(200);
+
+        const messagesColection = db.collection("messages");
+		await messagesColection.insertOne({
+            from: name, 
+            to: 'Todos', 
+            text: 'entra na sala...', 
+            type: 'status', 
+            time: dayjs().format('HH:mm:ss')
+        })
+		res.status(200).send();
 	 } catch (error) {
 	    res.status(500).send(error)
 	 }
