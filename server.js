@@ -14,7 +14,6 @@ server.use(json());
 const mongoClient = new MongoClient(process.env.MONGO_URI);
 let db;
 
-//ajustar isso do then 
 mongoClient.connect().then(() => {
 	db = mongoClient.db("bate-papo-UOL");
 });
@@ -84,13 +83,13 @@ server.post('/participants', async (req, res)=>{
 	    res.status(500).send(error)
 	 }
 })
-// Rota Mensagens
 
+// Rota Mensagens
 server.get('/messages', async (req, res)=>{
 
     const limit = parseInt(req.query.limit);
     const user = req.headers.user;
-    
+
     try {
         const messagesColection = db.collection("messages");
 		let messagesList = await messagesColection.find({ $or: [ { to:"Todos" }, {from: user}, {to: user} ] }).toArray();
@@ -117,6 +116,17 @@ server.post('/messages', async (req, res)=>{
       console.log(validation.error.details);
       const messages = validation.error.details.map(item => item.message);
       res.status(422).send(messages);
+      return
+    }
+
+    const participantsColection = db.collection("participants");
+    const participantsList = await participantsColection.find().toArray();
+    const participantsName = participantsList.map(item => item.name)
+    const userIsLogged = participantsName.filter(name => user === name)
+
+    if( userIsLogged.length === 0){
+        res.send('O usuário não está logado')
+        return
     }
 
     try {	
@@ -189,6 +199,6 @@ async function UpdateStatus(){
 
 setInterval(UpdateStatus, 15000);
 
-server.listen(5001, ()=>{
-    console.log('O servidor está rodando na porta 5001')
+server.listen(5000, ()=>{
+    console.log('O servidor está rodando na porta 5000')
 })
