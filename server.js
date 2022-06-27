@@ -87,10 +87,18 @@ server.post('/participants', async (req, res)=>{
 // Rota Mensagens
 
 server.get('/messages', async (req, res)=>{
+
+    const limit = parseInt(req.query.limit);
+    const user = req.headers.user;
     
     try {
         const messagesColection = db.collection("messages");
-		const messagesList = await messagesColection.find().toArray();
+		let messagesList = await messagesColection.find({ $or: [ { to:"Todos" }, {from: user}, {to: user} ] }).toArray();
+
+        if(limit){
+            console.log('existe limite', limit);
+            messagesList = messagesList.slice(limit * -1)
+        }
 				
 		res.status(200).send(messagesList);
 	 } catch (error) {
@@ -101,7 +109,7 @@ server.get('/messages', async (req, res)=>{
 server.post('/messages', async (req, res)=>{
     
     const {to, text, type} = req.body;
-    const {user} = req.headers;
+    const user = req.headers.user;
 
     const validation = messageSchema.validate({to, text, type, from: user}, { abortEarly: false });
 
