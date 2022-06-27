@@ -110,9 +110,20 @@ server.post('/messages', async (req, res)=>{
       const messages = validation.error.details.map(item => item.message);
       res.status(422).send(messages);
     }
-    console.log(user);
-    res.send()
 
+    try {	
+        const messagesColection = db.collection("messages");
+		await messagesColection.insertOne({
+            from: user,
+            to,
+            text,
+            type,
+            time: dayjs().format('HH:mm:ss')
+        })
+		res.status(201).send();
+	} catch (error) {
+	    res.status(500).send(error)
+	}
 })
 
 // Rota Status
