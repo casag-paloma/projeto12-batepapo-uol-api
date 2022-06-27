@@ -145,13 +145,18 @@ server.post('/status', async (req, res)=>{
     const isLogged = participants.filter(name => name === user)
 
     if(isLogged.length === 0){
-        console.log('tá off')
+        console.log('tá off', isLogged)
         res.status(404).send();
         return
     }
     
-    res.send(participants)
     try {	
+        await participantsColection.updateOne({name: user}, {
+            $set:{
+                lastStatus: Date.now()
+            }
+        })
+        res.status(200).send()
 	} catch (error) {
 	    res.status(500).send(error)
 	}
