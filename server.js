@@ -95,7 +95,6 @@ server.get('/messages', async (req, res)=>{
 		let messagesList = await messagesColection.find({ $or: [ { to:"Todos" }, {from: user}, {to: user} ] }).toArray();
 
         if(limit){
-            console.log('existe limite', limit);
             messagesList = messagesList.slice(limit * -1)
         }
 				
@@ -155,7 +154,6 @@ server.post('/status', async (req, res)=>{
     const isLogged = participants.filter(name => name === user)
 
     if(isLogged.length === 0){
-        console.log('tá off', isLogged)
         res.status(404).send();
         return
     }
