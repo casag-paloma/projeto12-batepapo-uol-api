@@ -135,6 +135,27 @@ server.post('/messages', async (req, res)=>{
 })
 
 // Rota Status
+server.post('/status', async (req, res)=>{
+    
+    const user = req.headers.user;
+    
+    const participantsColection = db.collection("participants");
+	const participantsList = await participantsColection.find().toArray();
+    const participants = participantsList.map(item => item.name)
+    const isLogged = participants.filter(name => name === user)
+
+    if(isLogged.length === 0){
+        console.log('tá off')
+        res.status(404).send();
+        return
+    }
+    
+    res.send(participants)
+    try {	
+	} catch (error) {
+	    res.status(500).send(error)
+	}
+})
 
 
 server.listen(5001, ()=>{
