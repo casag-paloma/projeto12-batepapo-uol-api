@@ -162,6 +162,20 @@ server.post('/status', async (req, res)=>{
 	}
 })
 
+async function UpdateStatus(){
+    try {
+        const participantsColection = db.collection("participants");
+        const participantsUnlogged = await participantsColection.find({lastStatus: { $lte: Date.now()-10000 }}).toArray();
+        if(participantsUnlogged != 0){
+           await participantsColection.deleteMany({lastStatus: { $lte: Date.now()-10000 }});
+        }
+        console.log('deu certo', participantsUnlogged)
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+setInterval(UpdateStatus, 15000);
 
 server.listen(5001, ()=>{
     console.log('O servidor está rodando na porta 5001')
