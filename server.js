@@ -50,6 +50,14 @@ server.post('/participants', async (req, res)=>{
 
     try {
 		const participantsColection = db.collection("participants");
+
+        const repeatedName = await participantsColection.findOne({name: name})
+        console.log(repeatedName)
+        if(repeatedName){
+            res.status(409).send('Esse usuário já está cadastrado')
+            return
+        }
+        
 		await participantsColection.insertOne({
             name,
             lastStatus: Date.now()
@@ -63,7 +71,7 @@ server.post('/participants', async (req, res)=>{
             type: 'status', 
             time: dayjs().format('HH:mm:ss')
         })
-		res.status(200).send();
+		res.status(201).send();
 	 } catch (error) {
 	    res.status(500).send(error)
 	 }
