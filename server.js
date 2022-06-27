@@ -24,6 +24,7 @@ const nameSchema = joi.object({
 });
 
 
+//Rota Partipantes
 server.get('/participants', async (req, res)=>{
     
     try {
@@ -52,7 +53,7 @@ server.post('/participants', async (req, res)=>{
 		const participantsColection = db.collection("participants");
 
         const repeatedName = await participantsColection.findOne({name: name})
-        console.log(repeatedName)
+
         if(repeatedName){
             res.status(409).send('Esse usuário já está cadastrado')
             return
@@ -76,9 +77,32 @@ server.post('/participants', async (req, res)=>{
 	    res.status(500).send(error)
 	 }
 })
+// Rota Mensagens
+
+server.get('/messages', async (req, res)=>{
+    
+    try {
+        const messagesColection = db.collection("messages");
+		const messagesList = await messagesColection.find().toArray();
+				
+		res.status(200).send(messagesList);
+	 } catch (error) {
+	    res.status(500).send(error)
+	 }
+})
+
+server.post('/messages', async (req, res)=>{
+    
+    const {to, text, type} = req.body;
+    const {user} = req.headers;
+    console.log(user);
+    res.send(text)
+
+})
+
+// Rota Status
 
 
-
-server.listen(5000, ()=>{
-    console.log('O servidor está rodando na porta 5000')
+server.listen(5001, ()=>{
+    console.log('O servidor está rodando na porta 5001')
 })
