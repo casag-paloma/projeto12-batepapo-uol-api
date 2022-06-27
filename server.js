@@ -12,6 +12,12 @@ server.use(json());
 
 
 const mongoClient = new MongoClient(process.env.MONGO_URI);
+let db;
+
+//ajustar isso do then 
+mongoClient.connect().then(() => {
+	db = mongoClient.db("bate-papo-UOL");
+});
 
 const nameSchema = joi.object({
     name: joi.string().required()
@@ -21,16 +27,12 @@ const nameSchema = joi.object({
 server.get('/participants', async (req, res)=>{
     
     try {
-		await mongoClient.connect();
-		const db = mongoClient.db("bate-papo-UOL")
 		const participantsColection = db.collection("participants");
 		const participantsList = await participantsColection.find().toArray();
 				
 		res.status(200).send(participantsList);
-		mongoClient.close()
 	 } catch (error) {
 	    res.status(500).send(error)
-		mongoClient.close()
 	 }
 })
 
@@ -47,16 +49,16 @@ server.post('/participants', async (req, res)=>{
     }
 
     try {
-		await mongoClient.connect();
-		const db = mongoClient.db("bate-papo-UOL")
 		const participantsColection = db.collection("participants");
-		const participantsList = await participantsColection.find().toArray();
+		await participantsColection.insertOne({
+            name,
+            lastStatus: Date.now()
+        })
+        
 				
 		res.status(200);
-		mongoClient.close()
 	 } catch (error) {
 	    res.status(500).send(error)
-		mongoClient.close()
 	 }
 })
 
