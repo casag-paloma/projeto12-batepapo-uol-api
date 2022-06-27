@@ -165,11 +165,23 @@ server.post('/status', async (req, res)=>{
 async function UpdateStatus(){
     try {
         const participantsColection = db.collection("participants");
+        const messagesColection = db.collection("messages")
         const participantsUnlogged = await participantsColection.find({lastStatus: { $lte: Date.now()-10000 }}).toArray();
+        
         if(participantsUnlogged != 0){
-           await participantsColection.deleteMany({lastStatus: { $lte: Date.now()-10000 }});
+            await participantsColection.deleteMany({lastStatus: { $lte: Date.now()-10000 }});
+            const bodyMessages = participantsUnlogged.map(item => {
+                return {
+                    from: item.name,
+                    to: 'Todos',
+                    text: 'sai da sala...',
+                    type: 'status',
+                    time: dayjs().format('HH:mm:ss') 
+                }
+            });
+            await messagesColection.insertMany(bodyMessages)
         }
-        console.log('deu certo', participantsUnlogged)
+
     } catch (error) {
         console.log(error)
     }
